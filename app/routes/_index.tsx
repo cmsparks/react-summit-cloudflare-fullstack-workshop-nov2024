@@ -1,4 +1,15 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/cloudflare";
+import {
+  Form,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,19 +18,112 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-/* TODO: add loader and action */
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const cardId = searchParams.get("card-id");
+
+  if (!cardId) {
+    return null;
+  }
+
+  return {
+    title: "placeholder title",
+    description: "placeholder description",
+    imageUrl: "image/placeholder",
+  } satisfies Card;
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const body = await request.formData();
+  const title = body.get("card-title");
+  const description = body.get("card-description");
+
+  const errors: { title?: string; description?: string } = {};
+
+  if (!title) {
+    errors.title = "no title was provided";
+  }
+
+  if (title instanceof File) {
+    errors.title = "title cannot be a file";
+  }
+
+  if (!description) {
+    errors.description = "no description was provided";
+  }
+
+  if (description instanceof File) {
+    errors.description = "description cannot be a file";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { errors };
+  }
+
+  console.log({
+    title,
+    description,
+  });
+
+  const sleep = new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+  await sleep;
+
+  const cardId = "CARD_ID_PLACEHOLDER";
+
+  return redirect(`/?card-id=${cardId}&new=1`);
+}
 
 export default function Index() {
-  const cardDetails = /* TODO: properly implement */ {
-    title: "_PLACEHOLDER_TITLE_",
-    description: "_PLACEHOLDER_DESCRIPTION_",
-    imageUrl: "/image/_PLACEHOLDER_IMAGE_",
-  };
+  const cardDetails = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+
+  const { state } = useNavigation();
+  const submitting = state === "submitting";
 
   return (
     <main className="main">
       {cardDetails === null ? (
-        <>{/* TODO: implement */ ""}</>
+        <Form className="card-form" method="post">
+          {submitting && (
+            <div className="card-form__loading">
+              <div className="loader"></div>
+            </div>
+          )}
+          <div className="card">
+            <div className="card__image"></div>
+            <input
+              className="card__title card__title--input"
+              type="text"
+              name="card-title"
+              id="card-title"
+              disabled={submitting}
+              placeholder="title"
+              required
+            />
+            {actionData?.errors?.title ? (
+              <span className="card-form__error">
+                {actionData?.errors.title}
+              </span>
+            ) : null}
+            <textarea
+              className="card__description card__description--input"
+              name="card-description"
+              id="card-description"
+              disabled={submitting}
+              placeholder="description..."
+              required
+            ></textarea>
+            {actionData?.errors?.description ? (
+              <span className="card-form__error">
+                {actionData?.errors.description}
+              </span>
+            ) : null}
+          </div>
+          <button disabled={submitting} className="btn btn--generate">
+            Generate
+          </button>
+        </Form>
       ) : (
         <div className="card">
           <img
