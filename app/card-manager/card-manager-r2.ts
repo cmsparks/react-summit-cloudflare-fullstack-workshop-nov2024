@@ -14,8 +14,22 @@ export class CardManagerR2 implements CardManager {
   async generateCardImage(
     card: Pick<Card, "title" | "description">
   ): Promise<ReadableStream<Uint8Array>> {
-    // TODO
-    throw new Error("Unimplemented");
+    // create prompt
+    const input = {
+      prompt: [
+        `Based on the following title and description, generate card artwork for a trading card`,
+        `title: ${card.title}`,
+        `description: ${card.description}`,
+      ].join("\n"),
+    };
+
+    // generate image data from aiBinding
+    const imageData = await this.env.AI.run(
+      "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+      input
+    );
+
+    return imageData;
   }
 
   async getCard(cardId: string): Promise<Card | null> {

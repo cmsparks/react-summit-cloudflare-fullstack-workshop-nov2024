@@ -14,7 +14,8 @@ There are multiple benefits to this model:
 - No boilerplate needed to initialize your API client
 - Easier to understand what resources are being used
 
-[__note] For more reading check out [this blog on why bindings are live objects](https://blog.cloudflare.com/workers-environment-live-object-bindings/)
+> [!NOTE]
+> For more reading check out [this blog on why bindings are live objects](https://blog.cloudflare.com/workers-environment-live-object-bindings/)
 
 ### Creating a KV namespace
 

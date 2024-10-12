@@ -13,10 +13,10 @@ enabled = true
 [ai]
 binding = "AI"
 
-#[[kv_namespaces]]
-#binding = "KV"
-#id = "<namespace-id>"
+[[kv_namespaces]]
+binding = "KV"
+id = "<namespace-id>"
 
-#[[r2_buckets]]
-#binding = "R2"
-#bucket_name = "<bucket-name>"
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "<bucket-name>"
