@@ -10,6 +10,7 @@ import {
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
+import { CardManager } from "~/card-manager";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   } satisfies Card;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ context, request }: ActionFunctionArgs) {
   const body = await request.formData();
   const title = body.get("card-title");
   const description = body.get("card-description");
@@ -61,15 +62,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return { errors };
   }
 
-  console.log({
-    title,
-    description,
+  const cardManager = new CardManager(context.cloudflare.env);
+
+  const cardId = await cardManager.generateAndSaveCard({
+    title: title as string,
+    description: description as string,
   });
-
-  const sleep = new Promise<void>((resolve) => setTimeout(resolve, 1_000));
-  await sleep;
-
-  const cardId = "CARD_ID_PLACEHOLDER";
 
   return redirect(`/?card-id=${cardId}`);
 }
