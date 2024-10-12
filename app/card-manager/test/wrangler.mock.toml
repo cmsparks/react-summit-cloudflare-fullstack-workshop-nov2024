@@ -1,0 +1,4 @@
+# Top-level configuration
+name = "mock-ai"
+main = "./ai.mock.ts"
+compatibility_date = "2024-10-11"

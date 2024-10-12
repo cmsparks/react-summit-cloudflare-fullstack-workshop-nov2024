@@ -1,0 +1,15 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "react-summit-cloudflare-fullstack-workshop-nov2024"
+compatibility_date = "2024-10-11"
+pages_build_output_dir = "./build/client"
+
+[ai]
+binding = "AI"
+
+#[[kv_namespaces]]
+#binding = "KV"
+#id = "<namespace-id>"
+
+#[[r2_buckets]]
+#binding = "R2"
+#bucket_name = "<bucket-name>"
