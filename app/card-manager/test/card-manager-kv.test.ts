@@ -1,4 +1,4 @@
-import { afterEach, describe, it, vi } from "vitest";
+import { afterEach, expect, describe, it, vi } from "vitest";
 import { env } from "cloudflare:test";
 import { CardManagerKV } from "../card-manager-kv";
 
@@ -10,7 +10,34 @@ describe("test CardManagerKV class", () => {
   const cardManager = new CardManagerKV(env);
 
   it("generateCardImage()", async () => {
-    // TODO
+    const title = "test title";
+    const description = "test description";
+
+    const arr = new Uint8Array([1, 2, 3, 4]);
+    const blob = new Blob([arr]);
+    const stream = blob.stream();
+
+    const expectedPrompt = {
+      prompt: [
+        `Based on the following title and description, generate card artwork for a trading card`,
+        `title: ${title}`,
+        `description: ${description}`,
+      ].join("\n"),
+    };
+    const mockAI = vi.spyOn(env.AI, "run").mockResolvedValueOnce(stream);
+
+    const cardData = await cardManager.generateCardImage({
+      title,
+      description,
+    });
+
+    expect(cardData).toStrictEqual(stream);
+
+    expect(mockAI).toHaveBeenCalledWith(
+      "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+      expectedPrompt
+    );
+    expect(mockAI).toHaveBeenCalledOnce();
   });
 
   it("generateAndSaveCard()", async () => {
