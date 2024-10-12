@@ -10,6 +10,7 @@ import {
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
+import { CardManager } from "~/card-manager";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,7 +19,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
   const cardId = searchParams.get("card-id");
@@ -27,14 +28,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return null;
   }
 
-  return {
-    title: "placeholder title",
-    description: "placeholder description",
-    imageUrl: "image/placeholder",
-  } satisfies Card;
+  const cardManager = new CardManager(context.cloudflare.env);
+
+  const card = await cardManager.getCard(cardId);
+
+  return card;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ context, request }: ActionFunctionArgs) {
   const body = await request.formData();
   const title = body.get("card-title");
   const description = body.get("card-description");
@@ -61,15 +62,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return { errors };
   }
 
-  console.log({
-    title,
-    description,
+  const cardManager = new CardManager(context.cloudflare.env);
+
+  const cardId = await cardManager.generateAndSaveCard({
+    title: title as string,
+    description: description as string,
   });
-
-  const sleep = new Promise<void>((resolve) => setTimeout(resolve, 1_000));
-  await sleep;
-
-  const cardId = "CARD_ID_PLACEHOLDER";
 
   return redirect(`/?card-id=${cardId}&new=1`);
 }
