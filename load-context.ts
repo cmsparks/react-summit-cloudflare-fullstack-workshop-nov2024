@@ -23,6 +23,7 @@ export const getLoadContext: GetLoadContext = ({ context }) => {
     const imageBlob = new Blob([imageArray]);
     ai = {
       async run(..._: unknown[]) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
         return imageBlob.stream();
       },
     } as Ai;
