@@ -11,6 +11,8 @@
     "start": "wrangler pages dev ./build/client",
     "typecheck": "tsc",
     "preview": "npm run build && wrangler dev",
+    "preview:test": "npm run build && npm run cf:dev:test",
+    "cf:dev:test": "wrangler dev --var mode:e2e-test",
     "cf-typegen": "wrangler types",
     "test": "vitest",
     "build:mocks": "wrangler deploy --minify --outdir ./build/mocks --dry-run --name 'mock-ai' --compatibility-date '2024-03-12' ./app/card-manager/test/ai.mock.ts"
@@ -26,7 +28,9 @@
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.18",
     "@cloudflare/workers-types": "^4.20241011.0",
+    "@playwright/test": "^1.48.0",
     "@remix-run/dev": "^2.12.0",
+    "@types/node": "^22.7.5",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
