@@ -1,3 +1,8 @@
+import { isCard } from "./utils";
+
+const IMAGE_KEY_PREFIX = "/image";
+const DATA_KEY_PREFIX = "/data";
+
 /**
  * Trading card manager class that wraps KV, and Workers AI. Handles all of our "business" logic
  */
@@ -11,8 +16,38 @@ export class CardManagerKV implements CardManager {
   async generateAndSaveCard(
     card: Pick<Card, "title" | "description">
   ): Promise<string> {
-    // TODO
-    throw new Error("Unimplemented");
+    const key = crypto.randomUUID();
+
+    const cardData = await this.generateCardImage(card);
+
+    // we don't know the length of the readable stream returned from ai.run(),
+    // so we need to read it all into a buffer so we can use it in r2Binding.put()
+
+    // 1) read the entire ReadableStream to get the data and length
+    const reader = cardData.getReader();
+    const buffer = [];
+    let totalLength = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer.push(value);
+      totalLength += value.byteLength;
+    }
+
+    // 2) convert to a statically sized Uint8Array()
+    const arrayBuffer = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const value of buffer) {
+      arrayBuffer.set(value, offset);
+      offset += value.byteLength;
+    }
+
+    await Promise.all([
+      this.env.KV.put(`${IMAGE_KEY_PREFIX}/${key}`, arrayBuffer),
+      this.env.KV.put(`${DATA_KEY_PREFIX}/${key}`, JSON.stringify(card)),
+    ]);
+
+    return key;
   }
 
   /**
