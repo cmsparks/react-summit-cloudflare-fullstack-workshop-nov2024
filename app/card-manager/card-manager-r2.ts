@@ -65,8 +65,26 @@ export class CardManagerR2 implements CardManager {
   }
 
   async getCard(cardId: string): Promise<Card | null> {
-    // TODO
-    throw new Error("Unimplemented");
+    const partialCard = await this.env.KV.get<Omit<Card, "imageUrl">>(
+      cardId,
+      "json"
+    );
+
+    if (!partialCard) {
+      // key not found
+      return null;
+    }
+
+    const card = {
+      ...partialCard,
+      imageUrl: `/image/${cardId}`,
+    };
+
+    if (!isCard(card)) {
+      throw new Error("Invalid card returned from KV");
+    }
+
+    return card;
   }
 
   async getCardImage(
