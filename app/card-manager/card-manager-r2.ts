@@ -1,4 +1,4 @@
-import { convertReadableStreamToUint8Array } from "./utils";
+import { convertReadableStreamToUint8Array, isCard } from "./utils";
 
 /**
  * Trading card manager class that wraps KV, R2, and Workers AI. Handles all of our "business" logic
@@ -59,8 +59,26 @@ export class CardManagerR2 implements CardManager {
    * @returns card info if found, null otherwise
    */
   async getCard(cardId: string): Promise<Card | null> {
-    // TODO
-    throw new Error("Unimplemented");
+    const partialCard = await this.env.KV.get<Omit<Card, "imageUrl">>(
+      cardId,
+      "json"
+    );
+
+    if (!partialCard) {
+      // key not found
+      return null;
+    }
+
+    const card = {
+      ...partialCard,
+      imageUrl: `/image/${cardId}`,
+    };
+
+    if (!isCard(card)) {
+      throw new Error("Invalid card returned from KV");
+    }
+
+    return card;
   }
 
   /**

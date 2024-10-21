@@ -80,11 +80,26 @@ describe("test CardManagerKV class", () => {
   });
 
   it("getCard(): null card", async () => {
-    // TODO
+    const nullCard = await cardManager.getCard("nonexistent-key");
+
+    expect(nullCard).toBeNull();
   });
 
   it("getCard(): non-null card", async () => {
-    // TODO
+    const uuid = crypto.randomUUID();
+
+    await env.KV.put(
+      `/data/${uuid}`,
+      JSON.stringify({
+        title: "test title",
+        description: "test description",
+      })
+    );
+
+    const card = await cardManager.getCard(uuid);
+    expect(card?.title).toStrictEqual("test title");
+    expect(card?.description).toStrictEqual("test description");
+    expect(card?.imageUrl).toMatch(/^\/image\/.*$/);
   });
 
   it("getCardImage(): null card", async () => {
