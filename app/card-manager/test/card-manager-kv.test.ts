@@ -1,6 +1,7 @@
 import { afterEach, assert, describe, expect, it, vi } from "vitest";
 import { env } from "cloudflare:test";
 import { CardManagerKV } from "../card-manager-kv";
+import { convertReadableStreamToUint8Array } from "../utils";
 
 afterEach(() => {
   vi.spyOn(env.AI, "run").mockRestore();
@@ -103,10 +104,22 @@ describe("test CardManagerKV class", () => {
   });
 
   it("getCardImage(): null card", async () => {
-    // TODO
+    const nullCard = await cardManager.getCardImage("nonexistent-key");
+
+    expect(nullCard).toBeNull();
   });
 
   it("getCardImage(): non-null card", async () => {
-    // TODO
+    const uuid = crypto.randomUUID();
+
+    const imageData = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    await env.KV.put(`/image/${uuid}`, imageData);
+
+    const cardImage = await cardManager.getCardImage(uuid);
+    assert(cardImage !== null);
+    expect(await convertReadableStreamToUint8Array(cardImage)).toStrictEqual(
+      imageData
+    );
   });
 });

@@ -88,7 +88,7 @@ export class CardManagerR2 implements CardManager {
   async getCardImage(
     cardId: string
   ): Promise<ReadableStream<Uint8Array> | null> {
-    // TODO
-    throw new Error("Unimplemented");
+    const r2Obj = await this.env.R2.get(cardId);
+    return r2Obj?.body ?? null;
   }
 }

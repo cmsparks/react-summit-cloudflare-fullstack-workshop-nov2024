@@ -91,7 +91,6 @@ export class CardManagerKV implements CardManager {
   async getCardImage(
     cardId: string
   ): Promise<ReadableStream<Uint8Array> | null> {
-    // TODO
-    throw new Error("Unimplemented");
+    return await this.env.KV.get(`${IMAGE_KEY_PREFIX}/${cardId}`, "stream");
   }
 }
