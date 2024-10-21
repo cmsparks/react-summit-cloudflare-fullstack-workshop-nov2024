@@ -104,10 +104,21 @@ describe("test CardManagerR2 class", () => {
   });
 
   it("getCardImage(): null card", async () => {
-    // TODO
+    const nullCard = await cardManager.getCardImage("nonexistent-key");
+
+    expect(nullCard).toBeNull();
   });
 
   it("getCardImage(): non-null card", async () => {
-    // TODO
+    const uuid = crypto.randomUUID();
+
+    const imageData = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    await env.R2.put(uuid, imageData);
+
+    const cardImage = await cardManager.getCardImage(uuid);
+    expect(
+      new Uint8Array(await new Response(cardImage).arrayBuffer())
+    ).toStrictEqual(imageData);
   });
 });
