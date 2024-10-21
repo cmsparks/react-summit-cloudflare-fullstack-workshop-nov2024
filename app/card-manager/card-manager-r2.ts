@@ -1,3 +1,5 @@
+import { convertReadableStreamToUint8Array } from "./utils";
+
 /**
  * Trading card manager class that wraps KV, R2, and Workers AI. Handles all of our "business" logic
  */
@@ -36,8 +38,20 @@ export class CardManagerR2 implements CardManager {
   async generateAndSaveCard(
     card: Pick<Card, "title" | "description">
   ): Promise<string> {
-    // TODO
-    throw new Error("Unimplemented");
+    const key = crypto.randomUUID();
+
+    const cardData = await this.generateCardImage(card);
+
+    // we don't know the length of the readable stream returned from ai.run(),
+    // so we need to read it all into a buffer so we can use it in env.R2.put()
+    const arrayBuffer = await convertReadableStreamToUint8Array(cardData);
+
+    await Promise.all([
+      this.env.R2.put(key, arrayBuffer),
+      this.env.KV.put(key, JSON.stringify(card)),
+    ]);
+
+    return key;
   }
 
   /**

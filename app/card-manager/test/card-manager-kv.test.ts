@@ -1,4 +1,4 @@
-import { afterEach, expect, describe, it, vi } from "vitest";
+import { afterEach, assert, describe, expect, it, vi } from "vitest";
 import { env } from "cloudflare:test";
 import { CardManagerKV } from "../card-manager-kv";
 
@@ -41,7 +41,42 @@ describe("test CardManagerKV class", () => {
   });
 
   it("generateAndSaveCard()", async () => {
-    // TODO
+    const title = "test title";
+    const description = "test description";
+
+    // create a large array that gets buffered into multiple chunks
+    const imageArray = new Uint8Array([1, 2, 3, 4]);
+    const imageBlob = new Blob([imageArray]);
+    const stream = imageBlob.stream();
+    const expectedPrompt = {
+      prompt: [
+        `Based on the following title and description, generate card artwork for a trading card`,
+        `title: ${title}`,
+        `description: ${description}`,
+      ].join("\n"),
+    };
+    const mockAI = vi.spyOn(env.AI, "run").mockResolvedValueOnce(stream);
+
+    const cardId = await cardManager.generateAndSaveCard({
+      title,
+      description,
+    });
+
+    expect(mockAI).toHaveBeenCalledWith(
+      "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+      expectedPrompt
+    );
+    expect(mockAI).toHaveBeenCalledOnce();
+
+    // validate image in KV
+    const kvCardImage = await env.KV.get(`/image/${cardId}`, "arrayBuffer");
+    assert(kvCardImage !== null);
+    expect(kvCardImage).toStrictEqual(imageArray.buffer);
+
+    // and data
+    const kvCard = (await env.KV.get(`/data/${cardId}`, "json")) as Card;
+    expect(kvCard.title).toStrictEqual("test title");
+    expect(kvCard.description).toStrictEqual("test description");
   });
 
   it("getCard(): null card", async () => {

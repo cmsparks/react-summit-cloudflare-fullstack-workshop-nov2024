@@ -1,3 +1,8 @@
+import { convertReadableStreamToUint8Array, isCard } from "./utils";
+
+const IMAGE_KEY_PREFIX = "/image";
+const DATA_KEY_PREFIX = "/data";
+
 /**
  * Trading card manager class that wraps KV, and Workers AI. Handles all of our "business" logic
  */
@@ -36,8 +41,20 @@ export class CardManagerKV implements CardManager {
   async generateAndSaveCard(
     card: Pick<Card, "title" | "description">
   ): Promise<string> {
-    // TODO
-    throw new Error("Unimplemented");
+    const key = crypto.randomUUID();
+
+    const cardData = await this.generateCardImage(card);
+
+    // we don't know the length of the readable stream returned from ai.run(),
+    // so we need to read it all into a buffer so we can use it in env.KV.put()
+    const arrayBuffer = await convertReadableStreamToUint8Array(cardData);
+
+    await Promise.all([
+      this.env.KV.put(`${IMAGE_KEY_PREFIX}/${key}`, arrayBuffer),
+      this.env.KV.put(`${DATA_KEY_PREFIX}/${key}`, JSON.stringify(card)),
+    ]);
+
+    return key;
   }
 
   /**
