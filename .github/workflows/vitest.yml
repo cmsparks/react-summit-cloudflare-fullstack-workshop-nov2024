@@ -1,0 +1,22 @@
+name: Vitest workers-library
+on: push
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, windows-2022, ubuntu-22.04]
+        node: [18, 20, 21, 22]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm ci
+      - name: build app
+        run: npm run build
+      - name: Run Vitest
+        run: npm run test

@@ -1,0 +1,28 @@
+name: Playwright Tests
+on: push
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, windows-2022, ubuntu-22.04]
+        node: [18, 20, 21, 22]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.os }}-node_${{ matrix.node}}
+          path: playwright-report/
+          retention-days: 30
