@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import { Form } from "@remix-run/react";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import { Form, redirect } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,6 +9,24 @@ export const meta: MetaFunction = () => {
 };
 
 /* TODO: add loader and action */
+
+export async function action({ request }: ActionFunctionArgs) {
+  const body = await request.formData();
+  const title = body.get("card-title");
+  const description = body.get("card-description");
+
+  console.log({
+    title,
+    description,
+  });
+
+  const sleep = new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+  await sleep;
+
+  const cardId = "CARD_ID_PLACEHOLDER";
+
+  return redirect(`/?card-id=${cardId}`);
+}
 
 export default function Index() {
   // const cardDetails = /* TODO: implement */ {
