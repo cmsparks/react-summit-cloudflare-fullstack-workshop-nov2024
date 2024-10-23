@@ -1,5 +1,9 @@
-import type { ActionFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
-import { Form, redirect } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/cloudflare";
+import { Form, redirect, useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,7 +12,21 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-/* TODO: add loader and action */
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const cardId = searchParams.get("card-id");
+
+  if (!cardId) {
+    return null;
+  }
+
+  return {
+    title: "placeholder title",
+    description: "placeholder description",
+    imageUrl: "image/placeholder",
+  } satisfies Card;
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
@@ -29,12 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
-  // const cardDetails = /* TODO: implement */ {
-  //   title: "_PLACEHOLDER_TITLE_",
-  //   description: "_PLACEHOLDER_DESCRIPTION_",
-  //   imageUrl: "/image/_PLACEHOLDER_IMAGE_",
-  // };
-  const cardDetails = null as null | Card;
+  const cardDetails = useLoaderData<typeof loader>();
 
   return (
     <main className="main">
