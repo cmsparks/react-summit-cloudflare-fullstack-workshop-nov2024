@@ -2,16 +2,18 @@ import { test, expect } from "@playwright/test";
 
 test("card generation", async ({ page }) => {
   await page.goto("http://localhost:8788/");
-  await expect(page.locator("div").first()).toBeVisible();
-  await expect(page.locator("div").nth(1)).toBeVisible();
-  await page.getByPlaceholder("title").click();
-  await page.getByPlaceholder("title").fill("Test Title");
-  await page.getByPlaceholder("description...").click();
-  await page.getByPlaceholder("description...").fill("Test Description");
-  await page.getByRole("button", { name: "Generate" }).click();
-  await expect(
-    page.getByRole("img", { name: "card illustration" })
-  ).toBeVisible();
-  await expect(page.getByText("Test Title")).toBeVisible();
-  await expect(page.getByText("Test Description")).toBeVisible();
+  await expect(page.getByTestId("card")).toBeVisible();
+  await expect(page.getByTestId("card-image-placeholder")).toBeVisible();
+  await page.getByTestId("card-title-input").click();
+  await page.getByTestId("card-title-input").fill("Test Title");
+  await page.getByTestId("card-description-input").click();
+  await page.getByTestId("card-description-input").fill("Test Description");
+  await page.getByTestId("card-generate-btn").click();
+  await expect(page.getByTestId("card-image")).toBeVisible();
+  await expect(page.getByTestId("card-title")).toBeVisible();
+  await expect(page.getByTestId("card-title")).toContainText("Test Title");
+  await expect(page.getByTestId("card-description")).toBeVisible();
+  await expect(page.getByTestId("card-description")).toContainText(
+    "Test Description"
+  );
 });
