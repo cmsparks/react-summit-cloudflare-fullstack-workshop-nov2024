@@ -20,7 +20,7 @@ export const getLoadContext: GetLoadContext = ({ context }) => {
   let ai = env.AI;
 
   if (env.mode === "e2e-test") {
-    ai = aiMock() as unknown as Ai;
+    ai = aiMock({ runDuration: 500 }) as unknown as Ai;
   }
 
   return {

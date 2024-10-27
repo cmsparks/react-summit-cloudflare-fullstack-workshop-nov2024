@@ -17,3 +17,13 @@ test("card generation", async ({ page }) => {
     "Test Description"
   );
 });
+
+test("card loading indicator", async ({ page }) => {
+  await page.goto("http://localhost:8788/");
+  await expect(page.getByTestId("card-loading-indicator")).not.toBeVisible();
+  await page.getByTestId("card-title-input").fill("Test Title");
+  await page.getByTestId("card-description-input").fill("Test Description");
+  await page.getByTestId("card-generate-btn").click();
+  await expect(page.getByTestId("card-loading-indicator")).toBeVisible();
+  await expect(page.getByTestId("card-loading-indicator")).not.toBeVisible();
+});
