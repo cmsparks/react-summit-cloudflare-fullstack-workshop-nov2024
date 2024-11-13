@@ -1,8 +1,3 @@
-import { convertReadableStreamToUint8Array, isCard } from "./utils";
-
-const IMAGE_KEY_PREFIX = "/image";
-const DATA_KEY_PREFIX = "/data";
-
 /**
  * Trading card manager class that wraps KV, and Workers AI. Handles all of our "business" logic
  */
@@ -16,22 +11,8 @@ export class CardManagerKV implements CardManager {
   async generateCardImage(
     card: Pick<Card, "title" | "description">
   ): Promise<ReadableStream<Uint8Array>> {
-    // create prompt
-    const input = {
-      prompt: [
-        `Based on the following title and description, generate card artwork for a trading card`,
-        `title: ${card.title}`,
-        `description: ${card.description}`,
-      ].join("\n"),
-    };
-
-    // generate image data from aiBinding
-    const imageData = await this.env.AI.run(
-      "@cf/stabilityai/stable-diffusion-xl-base-1.0",
-      input
-    );
-
-    return imageData;
+    // TODO
+    throw new Error("Unimplemented");
   }
 
   /**
@@ -41,20 +22,8 @@ export class CardManagerKV implements CardManager {
   async generateAndSaveCard(
     card: Pick<Card, "title" | "description">
   ): Promise<string> {
-    const key = crypto.randomUUID();
-
-    const cardData = await this.generateCardImage(card);
-
-    // we don't know the length of the readable stream returned from ai.run(),
-    // so we need to read it all into a buffer so we can use it in env.KV.put()
-    const arrayBuffer = await convertReadableStreamToUint8Array(cardData);
-
-    await Promise.all([
-      this.env.KV.put(`${IMAGE_KEY_PREFIX}/${key}`, arrayBuffer),
-      this.env.KV.put(`${DATA_KEY_PREFIX}/${key}`, JSON.stringify(card)),
-    ]);
-
-    return key;
+    // TODO
+    throw new Error("Unimplemented");
   }
 
   /**
@@ -62,26 +31,8 @@ export class CardManagerKV implements CardManager {
    * @returns card info if found, null otherwise
    */
   async getCard(cardId: string): Promise<Card | null> {
-    const partialCard = await this.env.KV.get<Omit<Card, "imageUrl">>(
-      `${DATA_KEY_PREFIX}/${cardId}`,
-      "json"
-    );
-
-    if (!partialCard) {
-      // key not found
-      return null;
-    }
-
-    const card = {
-      ...partialCard,
-      imageUrl: `/image/${cardId}`,
-    };
-
-    if (!isCard(card)) {
-      throw new Error("Invalid card returned from KV");
-    }
-
-    return card;
+    // TODO
+    throw new Error("Unimplemented");
   }
 
   /**
@@ -91,6 +42,7 @@ export class CardManagerKV implements CardManager {
   async getCardImage(
     cardId: string
   ): Promise<ReadableStream<Uint8Array> | null> {
-    return await this.env.KV.get(`${IMAGE_KEY_PREFIX}/${cardId}`, "stream");
+    // TODO
+    throw new Error("Unimplemented");
   }
 }

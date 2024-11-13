@@ -6,14 +6,10 @@ pages_build_output_dir = "./build/client"
 [ai]
 binding = "AI"
 
-[[kv_namespaces]]
-binding = "KV"
-id = "<namespace-id>"
+#[[kv_namespaces]]
+#binding = "KV"
+#id = "<namespace-id>"
 
-# Note: if you are not using R2 as part of your implementation
-#       you should remove or comment out this binding
-#       (this bindings is not a problem for local development
-#       but deplyoing your application with it would fail)
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "<bucket-name>"
+#[[r2_buckets]]
+#binding = "R2"
+#bucket_name = "<bucket-name>"
